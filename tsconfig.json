@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "removeComments": true,
+        "moduleResolution": "Node",
+        "target": "ES2017",
+        "baseUrl": "./",
+        "paths": {
+            "@utils*": ["src/utils", "src/utils*"],
+            "@client*": ["src/client", "src/client*"],
+            "@constant*": ["src/constant", "src/constant*"],
+            "@handler*": ["src/handler", "src/handler*"]
+        }
+    }
+}

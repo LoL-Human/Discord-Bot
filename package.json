@@ -1,0 +1,29 @@
+{
+    "name": "bot-dc",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.ts",
+    "scripts": {
+        "start:dev": "nodemon -e ts,tsx --exec \"ts-node --project ./tsconfig.json -r tsconfig-paths/register main.ts\"",
+        "start": "ts-node --project ./tsconfig.json -r tsconfig-paths/register main.ts\""
+    },
+    "keywords": [],
+    "author": "LoL Human",
+    "license": "ISC",
+    "dependencies": {
+        "@discordjs/opus": "^0.5.3",
+        "@discordjs/voice": "^0.6.0",
+        "@types/glob": "^7.1.4",
+        "@types/yt-search": "^2.3.2",
+        "discord.js": "^13.1.0",
+        "glob": "^7.2.0",
+        "libsodium-wrappers": "^0.7.9",
+        "yt-search": "^2.10.1",
+        "ytdl-core": "^4.9.1"
+    },
+    "devDependencies": {
+        "dotenv": "^10.0.0",
+        "nodemon": "^2.0.13",
+        "tsconfig-paths": "^3.11.0"
+    }
+}
