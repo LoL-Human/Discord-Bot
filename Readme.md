@@ -40,3 +40,4 @@ PREFIX = !
 # Thanks To
 
 -   [`Discord JS`](https://discord.js.org/)
+-   [`CodeLyon`](https://www.youtube.com/channel/UC08G-UJT58SbkdmcOYyOQVw)
