@@ -2,11 +2,11 @@ import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@disco
 import { client } from 'main'
 import ytdl from 'ytdl-core'
 import ytSearch from 'yt-search'
-import { Guild, Message } from 'discord.js'
+import { Guild, Message, MessageEmbed } from 'discord.js'
 
 const queue = new Map()
 
-client.on('play', ['skip', 'stop'], async (msg, { message }) => {
+client.on('play', ['skip', 'stop', 'queue'], async (msg, { message }) => {
     const voice_channel = message.member?.voice.channel
     if (!voice_channel) return message.reply('You need to be in a channel to execute this command!')
     const permissions = voice_channel.permissionsFor(message.client.user)
@@ -20,7 +20,7 @@ client.on('play', ['skip', 'stop'], async (msg, { message }) => {
         let videoURL = ytdl.validateURL(msg.args[0]) ? msg.args[0] : (await ytSearch(msg.args[0])).videos[0].url
         const info = await ytdl.getInfo(videoURL)
         const url = ytdl.chooseFormat(info.formats, { quality: '18' }).url
-        const song = { title: info.videoDetails.title, url }
+        const song = { title: info.videoDetails.title, video_id: info.videoDetails.videoId, url }
 
         if (!server_queue) {
             const queue_constructor = {
@@ -54,19 +54,22 @@ client.on('play', ['skip', 'stop'], async (msg, { message }) => {
         }
     } else if (msg.command === 'skip') skip_player(message, server_queue)
     else if (msg.command === 'stop') stop_song(message, server_queue)
+    else if (msg.command === 'queue') queue_song(message, server_queue)
 })
 
 const video_player = async (guild: Guild, song: { title: string; url: string }) => {
     const song_queue = queue.get(guild.id)
     const resource = createAudioResource(song.url, { inlineVolume: true })
-    resource.volume.setVolume(0.2)
     const player = createAudioPlayer()
+    resource.volume.setVolume(0.2)
     song_queue.connection.subscribe(player)
     player.play(resource)
     player.on('stateChange', async (_, newState) => {
         if (newState.status == 'idle') {
-            song_queue.songs.shift()
-            video_player(guild, song_queue.songs[0])
+            if (song_queue.songs.length != 1) {
+                song_queue.songs.shift()
+                video_player(guild, song_queue.songs[0])
+            }
         }
     })
     song_queue.player = player
@@ -85,4 +88,20 @@ const stop_song = (message: Message, server_queue: any) => {
     server_queue.songs = []
     message.channel.send('Stopping music, leave from voice channel...')
     setTimeout(() => server_queue.connection.destroy(), 1000)
+}
+
+const queue_song = (message: Message, server_queue: any) => {
+    if (!message.member.voice.channel) return message.channel.send('You need to be in a channel to execute this command!')
+    if (!server_queue) return message.channel.send(`There are no songs in channel 😔`)
+
+    const song_list = []
+    for (let x in server_queue.songs) song_list.push({ name: `${Number(x) + 1}. ${server_queue.songs[x].title}`, value: 'https://www.youtube.com/watch?v=' + server_queue.songs[x].video_id })
+
+    const embed = new MessageEmbed()
+        .setColor('WHITE')
+        .setTitle('Queue of ' + message.member.voice.channel.name + ' Channel')
+        .setDescription('Song queue of this channel')
+        .setFields(song_list)
+        .setTimestamp(new Date())
+    message.channel.send({ embeds: [embed] })
 }
